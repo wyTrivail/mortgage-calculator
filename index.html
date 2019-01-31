@@ -13,13 +13,13 @@
      </div>
 	<form id="form-calculator">
     <label>Amount</label>
-		<input id="input-amount" name="amount" value="700000" class="form-control"/>
+		<input id="input-amount" name="amount" value="700000" class="form-control" type="number" pattern="\d*"/>
     <label>Interest Rate</label>
-		<input id="input-interest-rate" name="interest-rate" value="0.04" class="form-control"/>
+    <select id="select-interest-rate" class="custom-select"></select>
     <label>Amortization Period</label>
-		<input id="input-amotization-period" name="amotization-period" value="30" class="form-control"/>
+    <select id="select-amotization-period" class="custom-select"></select>
     <label>Downpayment</label>
-    <input id="input-downpayment_percent", value="0.2" min="0", max="1" step="0.01" class="form-control"/>
+    <select id="select-downpayment-percent" class="custom-select"></select>
     <label>Monthly Payment</label>
 		<input id="input-payment" name="payment" readonly="readonly" class="form-control"/>
 	</form>
@@ -30,6 +30,27 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
 	<script>
     "use strict;"
+    // build html
+    for(let i=10; i <= 100; i+=5){
+      let str_percent = i + "%";
+      $("#select-downpayment-percent").append($('<option></option>').val(i/100.0).html(str_percent));
+    }
+    $('#select-downpayment-percent option[value="0.2"]').attr("selected", true);
+
+    for(let i=5; i <= 30; i +=5){
+      let html = i + " years";
+      $("#select-amotization-period").append($('<option></option>').val(i).html(html));
+    }
+    $('#select-amotization-period option[value="30"]').attr("selected", true);
+
+    for(let i=2; i <= 10; i+=0.01){
+      let fixedI = i.toFixed(2);
+      let html = fixedI + "%";
+      $("#select-interest-rate").append($('<option></option>').val((fixedI/100.0).toFixed(4)).html(html));
+    }
+    $('#select-interest-rate option[value="0.0400"]').attr("selected", true);
+
+    // logic
     function calculate_monthly_payment(amount, downpayment, interest_rate, amotization_years){
       let loan = amount - downpayment;
       if(loan < 0){
@@ -49,15 +70,15 @@
     }
     
     function get_interest_rate(){
-      return parseFloat($("#input-interest-rate").val());
+      return parseFloat($("#select-interest-rate").val());
     }
 
     function get_amotization_period(){
-      return parseInt($("#input-amotization-period").val());
+      return parseInt($("#select-amotization-period").val());
     }
 
     function get_downpayment_percent(){
-      return parseFloat($("#input-downpayment_percent").val());
+      return parseFloat($("#select-downpayment-percent").val());
     }
 
     function calculate_and_set_payment(){
@@ -74,6 +95,11 @@
     $("#form-calculator input").blur(function(){
       calculate_and_set_payment();
     });
+
+    $("#form-calculator select").change(function(){
+      calculate_and_set_payment();
+    });
+
 
     calculate_and_set_payment();
 
